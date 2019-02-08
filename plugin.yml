@@ -1,0 +1,5 @@
+main: me.theshermantanker.megawalls.MegaWallsPlugin
+author: TheShermanTanker
+name: MegaWalls
+version: 3.0
+depend: [WitherCraft]
