@@ -3,6 +3,7 @@ package me.theshermantanker.megawalls;
 import java.util.List;
 import java.util.Random;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.craftbukkit.v1_7_R4.entity.CraftPlayer;
@@ -41,14 +42,18 @@ public class EntityCustomWither extends EntityMonster implements IRangedEntity {
         	
         	@Override
         	public void run() {
+        		if(!EntityCustomWither.this.isEnraged && MegaWallsPlugin.plugin.handler.gamePhase.get(Bukkit.getWorld(EntityCustomWither.this.world.worldData.getName())) > 1) this.cancel();
         		if(!(runnable == null)) return;
+        		if(EntityCustomWither.this.dead) this.cancel();
         		if(seconds == 0) {
         			Random random = new Random();
-        			int skill = random.nextInt(4);
+        			int skill = random.nextInt(5);
         			runnable = new EntityWitherSkillRunnable(self, skill);
         			seconds = 7;
         		} else {
-        			seconds--;
+        			if(runnable == null && !(EntityCustomWither.this.world.a(EntityPlayer.class, EntityCustomWither.this.boundingBox.grow(40.0D, 4.0D, 40.0D), new EntitySelectorEnemyPlayers(EntityCustomWither.this, true)).isEmpty())) {
+        				seconds--;
+        			}
         		}
         	}
         };
@@ -233,7 +238,7 @@ public class EntityCustomWither extends EntityMonster implements IRangedEntity {
     		if(list instanceof EntityPlayer){
     			player = (EntityPlayer) list;
     		}
-    		player.getBukkitEntity().sendMessage(ChatColor.GRAY + "[" + ChatColor.RED + "Mega Walls" + ChatColor.GRAY + "]: " + ChatColor.YELLOW + "The " + name[0] + " " + name[1] + ChatColor.YELLOW + " has died! " + ChatColor.YELLOW + name[0] + " Players can no longer respawn!");
+    		player.getBukkitEntity().sendMessage(ChatColor.GRAY + "[" + ChatColor.RED + "Mega Walls" + ChatColor.GRAY + "]: " + ChatColor.YELLOW + "The " + name[0] + " " + name[1] + ChatColor.YELLOW + " has died! " + ChatColor.YELLOW + ChatColor.stripColor(name[0]) + " Players can no longer respawn!");
     	}
     	for(OfflinePlayer offlineplayer : this.allies.getPlayers()){
     		Player player = offlineplayer.getPlayer();
@@ -271,7 +276,11 @@ public class EntityCustomWither extends EntityMonster implements IRangedEntity {
     public void as() {}
 
     public int aV() {
-        return 4;
+        if(this.cb()) {
+        	return 4;
+        } else {
+        	return 0;
+        }
     }
 
     private double u(int i) {
@@ -361,11 +370,7 @@ public class EntityCustomWither extends EntityMonster implements IRangedEntity {
                 	}
                 }
                 
-                if(this.cb()){
-                	return super.damageEntity(damagesource, f * (75.0f/100.0f));
-                } else {
-                	return super.damageEntity(damagesource, f);
-                }
+                return super.damageEntity(damagesource, f);
                 
     		}
     		

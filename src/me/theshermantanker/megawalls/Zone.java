@@ -21,20 +21,25 @@ public class Zone implements Listener {
 		Bukkit.getServer().getPluginManager().registerEvents(this, MegaWallsPlugin.plugin);
 	}
 	
-	List<Block> list = new ArrayList<Block>();
+	List<Block> oldStorage = new ArrayList<Block>();
 	boolean setProtected = false;
 	protected final boolean plugin;
 	
-	public boolean contains(Block block) {
-		return list.contains(block);
+	public boolean containsOld(Block block) {
+		return oldStorage.contains(block);
 	}
 	
-    public boolean within(Entity entity) {
+    public boolean withinOld(Entity entity) {
 		Location location = entity.getLocation();
-		return this.contains(entity.getWorld().getBlockAt(location));
+		return this.containsOld(entity.getWorld().getBlockAt(location));
 	}
 	
-	public void setZone(Location location, Location corner) {
+    public void setZone(Location location, Location corner) {
+    	if(location.getWorld() != corner.getWorld()) throw new IllegalArgumentException("You cannot set Vectors that san across more than one World!");
+    	
+    }
+    
+	public void setZoneOld(Location location, Location corner) {
 		if(location.getWorld() != corner.getWorld()) throw new IllegalArgumentException("You cannot set Vectors that san across more than one World!");
 		World world = location.getWorld();
 		double ax, ay, az;
@@ -58,7 +63,7 @@ public class Zone implements Listener {
 			for(double dy = y; dy <= my; dy++) {
 				for(double dz = z; dz <= mz; dz++) {
 					Block block = world.getBlockAt(new Location(world, dx, dy, dz));
-					list.add(block);
+					oldStorage.add(block);
 				}
 			}
 		}
@@ -68,7 +73,8 @@ public class Zone implements Listener {
 	public void onDestroy(BlockBreakEvent event) {
 		Block block = event.getBlock();
 		
-		if(list.contains(block)) {
+		//Old method of handling
+		if(oldStorage.contains(block)) {
 			event.setCancelled(this.setProtected);
 		}
 	}
@@ -77,7 +83,8 @@ public class Zone implements Listener {
 	public void onPlace(BlockPlaceEvent event) {
 		Block block = event.getBlockReplacedState().getBlock();
 		
-		if(list.contains(block)) {
+		//Old method of handling. To be updated soon
+		if(oldStorage.contains(block)) {
 			event.setCancelled(this.setProtected);
 		}
 	}
@@ -88,7 +95,7 @@ public class Zone implements Listener {
 			System.out.println("Plugin " + MegaWallsPlugin.plugin.getName() + " tried to destroy a protected area");
 			return;
 		}
-		for(Block block : list) {
+		for(Block block : oldStorage) {
 			block.setType(Material.AIR);
 		}
 	}

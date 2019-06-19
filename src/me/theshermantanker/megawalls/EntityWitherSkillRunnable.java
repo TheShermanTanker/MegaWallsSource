@@ -20,7 +20,7 @@ public class EntityWitherSkillRunnable extends BukkitRunnable {
 		this.skill = i;
 		this.wither = wither;
 		this.runTaskTimer(MegaWallsPlugin.plugin, 0L, 20L);
-		List enemies = wither.world.a(EntityPlayer.class, wither.boundingBox.grow(40.0D, 4.0D, 40.0D), new EntitySelectorEnemyPlayers(wither, true));
+		List enemies = wither.world.a(EntityPlayer.class, wither.boundingBox.grow(20.0D, 5.0D, 20.0D), new EntitySelectorEnemyPlayers(wither, true));
 		String name = ChatColor.RED + ChatColor.stripColor(wither.getCustomName().substring(0, wither.getCustomName().indexOf(' ')));
 		for(Object target : enemies){
         	if(target instanceof EntityPlayer){
@@ -60,17 +60,17 @@ public class EntityWitherSkillRunnable extends BukkitRunnable {
 	        		
 	        		if(skill == 0) {
 	        			wither.world.getWorld().strikeLightningEffect(player.getLocation());
-	        			player.damage(14, wither.getBukkitEntity());
+	        			player.damage(14);
 	        			this.destroy();
 	        		} else if(skill == 1) {
 	        			wither.world.getWorld().strikeLightning(player.getLocation());
 	        			this.destroy();
 	        		} else if(skill == 2) {
-	        			player.damage(6, wither.getBukkitEntity());
+	        			player.damage(6);
 	        			player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 100, 2));
 	        			this.destroy();
 	        		} else if(skill == 3) {
-	        			player.damage(10, wither.getBukkitEntity());
+	        			player.damage(10);
 	        			Vector vector = wither.getBukkitEntity().getLocation().toVector();
 	        			Vector targeted = player.getLocation().toVector();
 	        			double x = targeted.getX() - vector.getX();
@@ -78,7 +78,7 @@ public class EntityWitherSkillRunnable extends BukkitRunnable {
 	        			player.setVelocity(new Vector(x, -1.0D, z).normalize().multiply(7.5D));
 	        			this.destroy();
 	        		} else if(skill == 4) {
-	        			player.damage(6, wither.getBukkitEntity());
+	        			player.damage(6);
 	        			player.setVelocity(new Vector(0.0, 2.5, 0.0));
 	        			this.destroy();
 	        		}

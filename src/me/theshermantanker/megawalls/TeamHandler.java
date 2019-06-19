@@ -33,6 +33,7 @@ public class TeamHandler implements Listener{
 		Team yellowteam = null;
 		Team blueteam = null;
 		Team redteam = null;
+		if(!(plugin.joinSigns.worlds.containsValue(world))) return;
 		Map<Scoreboard, String> scoreboards = helper.scoreboards.get(world);
 		for(Scoreboard scoreboard : scoreboards.keySet()){
 			if(scoreboards.get(scoreboard).equals("Green")){

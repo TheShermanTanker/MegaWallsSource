@@ -45,9 +45,9 @@ public class GameProtection implements Listener {
 		World world = player.getWorld();
 	    Object value = withercraft.knownWorlds.get(world);
 		String worldName = plugin.getWorldName(player);
-		int BuildLimit = data.getInt("Gameworlds." + worldName + ".HeightLimit");
+		int buildLimit = data.getInt("Gameworlds." + worldName + ".HeightLimit");
 	    
-		if(event.getBlock().getY() > BuildLimit && value.equals("Gameworld")){
+		if(event.getBlock().getY() > buildLimit && value.equals("Gameworld")){
 			
 			event.setCancelled(true);
 			

@@ -1,8 +1,10 @@
 package me.theshermantanker.megawalls;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
@@ -24,8 +26,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
 
 public class GameStart implements Listener{
@@ -37,8 +37,7 @@ public class GameStart implements Listener{
 	GameHandler gameHandler = new GameHandler();
 	LogicHelper helper = plugin.helper;
 	int minimumCount = plugin.dataconfiguaration.getInt("General.MinimumPlayerCount");
-	boolean timerStarted = false;
-	BukkitTask runnable;
+	Map<World, BukkitTask> runnables = new HashMap<World, BukkitTask>();
 	
 	private void spawnGreenWither(Location location, Team allies){
 		
@@ -80,13 +79,11 @@ public class GameStart implements Listener{
 	public void onJoin(PlayerChangedWorldEvent event){
 		Player player = event.getPlayer();
 		World world = player.getWorld();
-		Object value = withercraft.knownWorlds.get(world);
 		
-		if(value.equals("Gameworld")  && player.getWorld().getPlayers().size() >= minimumCount && !timerStarted){
+		if(plugin.joinSigns.worlds.containsValue(world) && player.getWorld().getPlayers().size() >= minimumCount && !runnables.containsKey(world)){
 			WorldDataHolder holder = handler.getWorldData(plugin.getWorldName(player));
-			timerStarted = true;
 			
-			runnable = new BukkitRunnable() {
+			BukkitTask runnable = new BukkitRunnable() {
 	              int time = 30;
 			       @Override
 	               public void run(){
@@ -140,16 +137,11 @@ public class GameStart implements Listener{
 	                    		   redTeam = scoreboard.getTeam("RedTeam");
 	                    	   }
 	                       }
-	                       plugin.classHandler.newGame(world);
 	                       for(Player players : world.getPlayers()){
 	                    	   
 	                    	   players.addPotionEffect(new PotionEffect(PotionEffectType.HEALTH_BOOST, 20000000, 4));
 	                    	   players.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 100, 9));
 	                    	   
-	                    	   if(players.getName().equals("Ac_50") || players.getName().equals("_vertig0")) {
-	                    		   GolemHeroClass golem = new GolemHeroClass(players);
-	                    		   plugin.classHandler.registerPlayer(golem);
-	                    	   }
 	                       }
 	                       for(OfflinePlayer offlineplayers : greenTeam.getPlayers()){
 	                    	   Player players = offlineplayers.getPlayer();
@@ -216,16 +208,22 @@ public class GameStart implements Listener{
 	                       spawnRedWither(holder.redWitherSpawn, redTeam);
 	                       spawnYellowWither(holder.yellowWitherSpawn, yellowTeam);
 	                       plugin.worlds.put(world, true);
-	                       EnhancedScheduler scheduler = new EnhancedScheduler(20, false);
+	                       EnhancedScheduler scheduler = new EnhancedScheduler(600, false);
 	                       scheduler.startTimer();
 	                       gameHandler.registerGame(world, scheduler);
-	                       gameHandler.tickGame(world);
+	                       List<Team> teams = new ArrayList<Team>();
+	                       teams.add(greenTeam);
+	                       teams.add(yellowTeam);
+	                       teams.add(blueTeam);
+	                       teams.add(redTeam);
+	                       gameHandler.tickGame(world, teams);
+	                       plugin.manager.releaseWorld(world);
 	                       	                       	                       
 	                                               }
 	                  time--;
 	               }
 	           }.runTaskTimer(plugin, 0, 20);
-	     
+	           runnables.put(world, runnable);
 	       }
 		
 			
@@ -235,14 +233,13 @@ public class GameStart implements Listener{
 	public void onLeave(PlayerChangedWorldEvent event){
 		Player player = event.getPlayer();
 		World world = event.getFrom();
-		Object value = withercraft.knownWorlds.get(world);
 		
-		if(value.equals("Gameworld")){
+		if(plugin.joinSigns.worlds.containsValue(world)) {
 			
-			if(world.getPlayers().size() < minimumCount && timerStarted){
+			if(world.getPlayers().size() < minimumCount && runnables.containsKey(world)){
 				
-				runnable.cancel();
-				timerStarted = false;
+				runnables.get(world).cancel();
+				runnables.remove(world);
 				for(Player players : world.getPlayers()){
 					
 					players.sendMessage(ChatColor.GRAY + "[" + ChatColor.RED + "Mega Walls" + ChatColor.GRAY + "]: " + ChatColor.RED + "Not enough players! Start cancelled!");
@@ -285,37 +282,32 @@ public class GameStart implements Listener{
 				
 			}
 			
-			int Players = world.getPlayers().size();
+			int playerCount = world.getPlayers().size();
 			
             for(Player players : world.getPlayers()){
 				
 				if(!(displayname == null)){
 					
-					players.sendMessage(displayname + ChatColor.YELLOW + " has left! (" + ChatColor.AQUA + Players + ChatColor.YELLOW + "/" + ChatColor.AQUA + "100" + ChatColor.YELLOW + ")");
+					players.sendMessage(displayname + ChatColor.YELLOW + " has left! (" + ChatColor.AQUA + playerCount + ChatColor.YELLOW + "/" + ChatColor.AQUA + "100" + ChatColor.YELLOW + ")");
 					
 				}
 				
 			}
-			
-			Block block = Bukkit.getWorld("Lobby").getBlockAt(-2505, 8, 699);
-			BlockState state = block.getState();
-			if (!(state instanceof Sign)) {
-			    return; 
+            
+            int id = -1;
+            
+            for(Map.Entry<Integer, World> entry : plugin.joinSigns.worlds.entrySet()) {
+            	if(entry.getValue() == world) {
+            		id = entry.getKey();
+            		break;
+            	}
+            }
+            
+			for(Sign sign : plugin.joinSigns.signs.keySet()) {
+				if(plugin.joinSigns.signs.get(sign) == id) {
+					sign.setLine(2, playerCount + "/100");
+				}
 			}
-			Sign sign = (Sign) state;
-			sign.setLine(2, Players + "/100");
-			sign.setLine(3, "Forsaken");
-			sign.update();
-			
-			Block block2 = Bukkit.getWorld("Lobby").getBlockAt(-2505, 8, 743);
-			BlockState state2 = block2.getState();
-			if (!(state2 instanceof Sign)) {
-			    return; 
-			}
-			Sign sign2 = (Sign) state2;
-			sign2.setLine(2, Players + "/100");
-			sign2.setLine(3, "Forsaken");
-			sign2.update();
 			
 		}
 		

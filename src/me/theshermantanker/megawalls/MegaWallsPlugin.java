@@ -11,9 +11,7 @@ import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.craftbukkit.v1_7_R4.CraftServer;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -35,7 +33,8 @@ public class MegaWallsPlugin extends JavaPlugin implements Listener {
 	GameStart start;
 	GameHandler handler;
 	PacketInterceptor interceptor;
-	ClassManager classHandler = new ClassManager();
+	JoinSigns joinSigns;
+	GameProtection protection;
 	
 	public String getWorldName(Player player){
 		
@@ -62,9 +61,9 @@ public class MegaWallsPlugin extends JavaPlugin implements Listener {
 		World gameWorld3 = Bukkit.createWorld(new WorldCreator("Egypt"));
 		World gameWorld4 = Bukkit.createWorld(new WorldCreator("Dragonkeep"));
 		World gameWorld5 = Bukkit.createWorld(new WorldCreator("Forsaken"));
-		withercraft.knownWorlds.put(gameWorld, "Locked");
-		withercraft.knownWorlds.put(gameWorld2, "Locked");
-		withercraft.knownWorlds.put(gameWorld3, "Locked");
+		withercraft.knownWorlds.put(gameWorld, "Gameworld");
+		withercraft.knownWorlds.put(gameWorld2, "Gameworld");
+		withercraft.knownWorlds.put(gameWorld3, "Gameworld");
 		withercraft.knownWorlds.put(gameWorld4, "Gameworld");
 		withercraft.knownWorlds.put(gameWorld5, "Gameworld");
 		worlds.put(gameWorld4, false);
@@ -75,13 +74,12 @@ public class MegaWallsPlugin extends JavaPlugin implements Listener {
 		gameWorld4.setAutoSave(false);
 		gameWorld5.setAutoSave(false);
 		Bukkit.getServer().getPluginManager().registerEvents(this, this);
-		Bukkit.getServer().getPluginManager().registerEvents(new JoinSigns(), this);
+		Bukkit.getServer().getPluginManager().registerEvents(joinSigns = new JoinSigns(), this);
 		Bukkit.getServer().getPluginManager().registerEvents(new LobbyProtection(), this);
 		Bukkit.getServer().getPluginManager().registerEvents(new GameStart(), this);
-		Bukkit.getServer().getPluginManager().registerEvents(new GameProtection(), this);
+		Bukkit.getServer().getPluginManager().registerEvents(protection = new GameProtection(), this);
 		Bukkit.getServer().getPluginManager().registerEvents(new TeamHandler(), this);
-		Bukkit.getServer().getPluginManager().registerEvents(new GameChat(), this);
-		Bukkit.getServer().getPluginManager().registerEvents(new ImmuneWitherEasterEgg(), this);
+		//Bukkit.getServer().getPluginManager().registerEvents(new GameChat(), this);
 		manager = new WorldManager(helper);
 		manager.prepareWorld(gameWorld4);
 		manager.prepareWorld(gameWorld5);
@@ -89,21 +87,7 @@ public class MegaWallsPlugin extends JavaPlugin implements Listener {
 		handler = start.gameHandler;
 		Bukkit.getServer().getPluginManager().registerEvents(handler, this);
 		interceptor = new PacketInterceptor(this);
-		((CraftServer) Bukkit.getServer()).getCommandMap().register("bukkit", new SurfaceCommand("surface"));
 		
-	}
-	
-	@EventHandler
-	public void onClick(PlayerClickEvent event) {
-		this.leftClickPacket(event.getPlayer(), event.getLeftClicked());
-	}
-	
-	public void leftClickPacket(Player player, Player target) {
-		System.out.println("Left Click Packet detected!");
-		if(handler.isEnemy(player, target) && classHandler.isGame(player) && classHandler.isGame(target)) {
-			classHandler.leftClick(player, target);
-			System.out.println("Left Click Packet verified!");
-		}
 	}
 	
 	public void onLoad(){

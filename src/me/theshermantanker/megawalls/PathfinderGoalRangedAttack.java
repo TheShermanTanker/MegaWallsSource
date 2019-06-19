@@ -6,7 +6,7 @@ import net.minecraft.server.v1_7_R4.IRangedEntity;
 import net.minecraft.server.v1_7_R4.MathHelper;
 import net.minecraft.server.v1_7_R4.PathfinderGoal;
 
-public class PathfinderGoalRangedAttack extends PathfinderGoal{
+public class PathfinderGoalRangedAttack extends PathfinderGoal {
 	
 	private final EntityInsentient a;
     private final IRangedEntity b;

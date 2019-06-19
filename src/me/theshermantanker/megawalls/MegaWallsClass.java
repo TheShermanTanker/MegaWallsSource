@@ -4,24 +4,22 @@ import java.util.List;
 import java.util.Map;
 
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemStack;
 
 public abstract class MegaWallsClass implements Listener {
 	
-	ClassManager manager;
 	int[] abilityLevels;
 	int[] skillLevels;
 	int[] passiveLevels;
 	Map<Integer, List<ItemStack>> kitLevels;
 	int[] gatheringLevels;
+	int[] currentLevels; //0 = Ability, 1 = Skill, 2 = Passive, 3 = Kit, 4 = Gather
 	int abilityCharge; //0 - Energy per Click, 1 - Energy per Bow Hit
 	int energyGainRate;
 	boolean abilitySwordActivated; //Set to false if skill is activated by left clicking bow
-	Class<? extends Event> skillEvent;
-	Class<? extends Event> passiveEvent;
-	Class<? extends Event> gatherEvent;
 	
 	Player player;
 	MegaWallsPlugin plugin = MegaWallsPlugin.plugin;
@@ -31,7 +29,19 @@ public abstract class MegaWallsClass implements Listener {
 		
 	}
 	
-	public void gainEnergy(int energy) {
+	@EventHandler
+	public void onDeath(PlayerDeathEvent event) {
+		Player player = event.getEntity();
+		if(player == this.player) {
+			List<ItemStack> targetKit = kitLevels.get(currentLevels[3]);
+			//Handles some personal events
+		}
+	}
+	
+	public void gainEnergy() {
+		
+		int energy = this.energyGainRate;
+		
 		if(energy >= 100 || energy <= 0) return;
 		if(player.getLevel() >= 100) {
 			player.setLevel(100);
@@ -50,19 +60,15 @@ public abstract class MegaWallsClass implements Listener {
 		}
 	}
 	
-	public void setController(ClassManager manager) {
-		this.manager = manager;
-	}
-	
 	public abstract void activateAbility();
 	
-	public abstract void startSkill(Event event);
+	public abstract void startSkill();
 	
-	public abstract void startPassive(Event event);
+	public abstract void startPassive();
 	
 	public abstract void initiateKitItems();
 	
-	public abstract void triggerGather(Event event);
+	public abstract void triggerGather();
 	
 	public abstract String getClassName();
 	

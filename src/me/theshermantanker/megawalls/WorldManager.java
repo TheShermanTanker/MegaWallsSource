@@ -19,9 +19,6 @@ public class WorldManager {
 	
 	MegaWallsPlugin plugin = MegaWallsPlugin.plugin;
 	ScoreboardManager manager = Bukkit.getScoreboardManager();
-	Map<Sign, World> listedWorlds = new HashMap<Sign, World>();
-	List<World> standbyWorlds = new ArrayList<World>();
-	List<Sign> availableInterfaces = new ArrayList<Sign>();
 	LogicHelper helper;
 	
 	public WorldManager(LogicHelper helper){
@@ -62,8 +59,20 @@ public class WorldManager {
 			scoreboards.put(bluescoreboard, "Blue");
 			scoreboards.put(redscoreboard, "Red");
 			helper.bindScoreboards(world, scoreboards);
+			plugin.joinSigns.registerGame(world);
 			System.out.println(world.getName() + " has been fully set up!");
 			
+	}
+	
+	public void releaseWorld(World world) {
+		helper.scoreboards.remove(world);
+		int i = 0;
+		while(i < 2) {
+			if(world == plugin.joinSigns.worlds.get(i)) {
+				plugin.joinSigns.unregisterGame(i);
+				break;
+			}
+		}
 	}
 
 }
