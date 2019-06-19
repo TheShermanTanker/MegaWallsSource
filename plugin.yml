@@ -1,5 +1,9 @@
 main: me.theshermantanker.megawalls.MegaWallsPlugin
 author: TheShermanTanker
 name: MegaWalls
-version: 3.0
+version: 2.0
 depend: [WitherCraft]
+
+commands:
+  surface:
+    description: Teleports Players to the surface
