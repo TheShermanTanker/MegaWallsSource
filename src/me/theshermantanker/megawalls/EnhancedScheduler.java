@@ -20,8 +20,8 @@ public class EnhancedScheduler {
 		return time;
 	}
 	
-	public void setTime(int Time){
-		this.time = Time;
+	public void setTime(int time){
+		this.time = time;
 		timeEdited = true;
 	}
 	

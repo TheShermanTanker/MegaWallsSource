@@ -9,13 +9,13 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import me.theshermantanker.withercraft.WitherCraft;
 
-public class GameChat implements Listener{
+public class GameChat implements Listener {
 	
 	MegaWallsPlugin plugin = MegaWallsPlugin.plugin;
 	WitherCraft withercraft = plugin.withercraft;
 	
 	@EventHandler
-	public void onChat(AsyncPlayerChatEvent event){
+	public void onChat(AsyncPlayerChatEvent event) {
 		
 		FileConfiguration playerdata = withercraft.customConfig;
 		Player player = event.getPlayer();

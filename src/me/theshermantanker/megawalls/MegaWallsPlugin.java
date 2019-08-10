@@ -76,14 +76,13 @@ public class MegaWallsPlugin extends JavaPlugin implements Listener {
 		Bukkit.getServer().getPluginManager().registerEvents(this, this);
 		Bukkit.getServer().getPluginManager().registerEvents(joinSigns = new JoinSigns(), this);
 		Bukkit.getServer().getPluginManager().registerEvents(new LobbyProtection(), this);
-		Bukkit.getServer().getPluginManager().registerEvents(new GameStart(), this);
+		Bukkit.getServer().getPluginManager().registerEvents(start = new GameStart(), this);
 		Bukkit.getServer().getPluginManager().registerEvents(protection = new GameProtection(), this);
 		Bukkit.getServer().getPluginManager().registerEvents(new TeamHandler(), this);
 		//Bukkit.getServer().getPluginManager().registerEvents(new GameChat(), this);
 		manager = new WorldManager(helper);
 		manager.prepareWorld(gameWorld4);
 		manager.prepareWorld(gameWorld5);
-		start = new GameStart();
 		handler = start.gameHandler;
 		Bukkit.getServer().getPluginManager().registerEvents(handler, this);
 		interceptor = new PacketInterceptor(this);

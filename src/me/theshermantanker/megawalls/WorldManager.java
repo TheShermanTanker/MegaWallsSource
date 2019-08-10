@@ -67,11 +67,12 @@ public class WorldManager {
 	public void releaseWorld(World world) {
 		helper.scoreboards.remove(world);
 		int i = 0;
-		while(i < 2) {
+		while(i <= 2) {
 			if(world == plugin.joinSigns.worlds.get(i)) {
 				plugin.joinSigns.unregisterGame(i);
 				break;
 			}
+			i++;
 		}
 	}
 

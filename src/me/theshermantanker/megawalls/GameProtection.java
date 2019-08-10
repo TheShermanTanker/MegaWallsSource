@@ -18,7 +18,6 @@ public class GameProtection implements Listener {
 	MegaWallsPlugin plugin = MegaWallsPlugin.plugin;
 	WitherCraft withercraft = plugin.withercraft;
 	FileConfiguration data = plugin.dataconfiguaration;
-	GameStart gamestart = new GameStart();
 	
 	@EventHandler
 	public void onDestroy(BlockBreakEvent event){
@@ -76,9 +75,9 @@ public class GameProtection implements Listener {
 	public void onDrop(PlayerDropItemEvent event){
 		Player player = event.getPlayer();
 		Object value = withercraft.knownWorlds.get(player.getWorld());
-		int BuildLimit = data.getInt("Gameworlds." + plugin.getWorldName(player) + ".HeightLimit");
+		int buildLimit = data.getInt("Gameworlds." + plugin.getWorldName(player) + ".HeightLimit");
 		
-		if(value.equals("Gameworld") && player.getLocation().getBlockY() > BuildLimit){
+		if(value.equals("Gameworld") && player.getLocation().getBlockY() > buildLimit){
 			
 			event.setCancelled(true);
 			

@@ -41,6 +41,7 @@ public class GameUpdater extends BukkitRunnable implements Listener {
 	EntityBlueWither blueWither = null;
 	EntityRedWither redWither = null;
 	Map<Scoreboard, String> worldScoreboards;
+	boolean allWithersDead = false;
 	
 	@EventHandler
 	public void onClick(PlayerClickEvent event) {
@@ -105,9 +106,6 @@ public class GameUpdater extends BukkitRunnable implements Listener {
 	    				  if(!player.hasPotionEffect(PotionEffectType.HEALTH_BOOST) && !(player.getScoreboard() == manager.getMainScoreboard())){
 	    					  player.addPotionEffect(new PotionEffect(PotionEffectType.HEALTH_BOOST, 20000000, 4));
 	    				  }
-	    				  if(handler.gamePhase.get(world) < 3){
-	    					  player.setFoodLevel(20);
-	    				  }
 	    			  }
 	    			  
 	    			  
@@ -150,6 +148,7 @@ public class GameUpdater extends BukkitRunnable implements Listener {
 	    					  players.sendMessage(ChatColor.GRAY + "[" + ChatColor.RED + "Mega Walls" + ChatColor.GRAY + "]: " + ChatColor.YELLOW + "The walls have come down! Prepare for battle!");
 	    				  }
 	    				  timer.setTime(3000);
+	    				  timer.autoCancel = true;
 	    			  }
 	    			  
 	    			  if(timer.getTime() % 60 == 0 && handler.gamePhase.get(world) == 1){
@@ -171,7 +170,7 @@ public class GameUpdater extends BukkitRunnable implements Listener {
 	    				  }
 	    			  }
 	    			  
-	    			  if(timer.getTime() == 2400 && handler.gamePhase.get(world) == 2){
+	    			  if(timer.getTime() == 2400 && handler.gamePhase.get(world) == 2 && !allWithersDead) {
 	    				  greenWither.setEnraged(false);
 	    				  yellowWither.setEnraged(false);
 	    				  blueWither.setEnraged(false);
@@ -185,178 +184,199 @@ public class GameUpdater extends BukkitRunnable implements Listener {
 	    				  
 	    			  }
 	    			  
-	    			  if(worldScoreboards.get(scoreboard).equals("Green")){
-	    				  Objective green = scoreboard.getObjective(DisplaySlot.SIDEBAR);
-	    				  green.setDisplayName(ChatColor.GREEN + "Mega Walls " + ChatColor.RED + handler.handleList.get(world).formatStringTime());
-	    				  if(!(greenWither == null)) {
-	    					  float health = greenWither.getHealth();
-	    					  int converted;
-	    					  if(health > 0 && health < 1) {
-	    						  converted = 1;
-	    					  } else {
-	    						  converted = (int) health;
+	    			  if(handler.gamePhase.get(world) == 3) {
+	    				  for(Player players : world.getPlayers()) {
+	    					  if(players.hasPotionEffect(PotionEffectType.HUNGER)) {
+	    						  players.addPotionEffect(new PotionEffect(PotionEffectType.HUNGER, 140, 1));
+	    						  players.sendMessage(ChatColor.GRAY + "[" + ChatColor.RED + "Mega Walls" + ChatColor.GRAY + "]: " + ChatColor.BOLD + "" + ChatColor.RED + "Get to the middle to stop losing hunger!");
 	    					  }
-	    					  green.getScore(ChatColor.GREEN + "Wither Health:").setScore(converted);
 	    				  }
-	    				  if(!(yellowWither == null)) {
-	    					  float health = yellowWither.getHealth();
-	    					  int converted;
-	    					  if(health > 0 && health < 1) {
-	    						  converted = 1;
-	    					  } else {
-	    						  converted = (int) health;
-	    					  }
-	    					  green.getScore(ChatColor.YELLOW + "Wither Health:").setScore(converted);
+	    			  }
+	    			  
+	    			  if(!allWithersDead) {
+	    				  if(greenWither.dead && yellowWither.dead && blueWither.dead && redWither.dead) {
+	    					  allWithersDead = true;
+	    					  withersEnraged = false;
+	    					  handler.gamePhase.put(world, 3);
 	    				  }
-	    				  if(!(blueWither == null)) {
-	    					  float health = blueWither.getHealth();
-	    					  int converted;
-	    					  if(health > 0 && health < 1) {
-	    						  converted = 1;
-	    					  } else {
-	    						  converted = (int) health;
-	    					  }
-	    					  green.getScore(ChatColor.BLUE + "Wither Health:").setScore(converted);
-	    				  }
-	    				  if(!(redWither == null)) {
-	    					  float health = redWither.getHealth();
-	    					  int converted;
-	    					  if(health > 0 && health < 1) {
-	    						  converted = 1;
-	    					  } else {
-	    						  converted = (int) health;
-	    					  }
-	    					  green.getScore(ChatColor.RED + "Wither Health:").setScore(converted);
-	    				  }
-	    			  } else if(worldScoreboards.get(scoreboard).equals("Yellow")){
-	    				  Objective yellow = scoreboard.getObjective(DisplaySlot.SIDEBAR);
-	    				  yellow.setDisplayName(ChatColor.YELLOW + "Mega Walls " + ChatColor.RED + handler.handleList.get(world).formatStringTime());
-	    				  if(!(greenWither == null)){
-	    					  float health = greenWither.getHealth();
-	    					  int converted;
-	    					  if(health > 0 && health < 1) {
-	    						  converted = 1;
-	    					  } else {
-	    						  converted = (int) health;
-	    					  }
-	    					  yellow.getScore(ChatColor.GREEN + "Wither Health:").setScore(converted);
-	    				  }
-	    				  if(!(yellowWither == null)) {
-	    					  float health = yellowWither.getHealth();
-	    					  int converted;
-	    					  if(health > 0 && health < 1) {
-	    						  converted = 1;
-	    					  } else {
-	    						  converted = (int) health;
-	    					  }
-	    					  yellow.getScore(ChatColor.YELLOW + "Wither Health:").setScore(converted);
-	    				  }
-	    				  if(!(blueWither == null)) {
-	    					  float health = blueWither.getHealth();
-	    					  int converted;
-	    					  if(health > 0 && health < 1) {
-	    						  converted = 1;
-	    					  } else {
-	    						  converted = (int) health;
-	    					  }
-	    					  yellow.getScore(ChatColor.BLUE + "Wither Health:").setScore(converted);
-	    				  }
-	    				  if(!(redWither == null)) {
-	    					  float health = redWither.getHealth();
-	    					  int converted;
-	    					  if(health > 0 && health < 1) {
-	    						  converted = 1;
-	    					  } else {
-	    						  converted = (int) health;
-	    					  }
-	    					  yellow.getScore(ChatColor.RED + "Wither Health:").setScore(converted);
-	    				  }  
-	    			  } else if(worldScoreboards.get(scoreboard).equals("Blue")){
-	    				  Objective blue = scoreboard.getObjective(DisplaySlot.SIDEBAR);
-	    				  blue.setDisplayName(ChatColor.BLUE + "Mega Walls " + ChatColor.RED + handler.handleList.get(world).formatStringTime());
-	    				  if(!(greenWither == null)) {
-	    					  float health = greenWither.getHealth();
-	    					  int converted;
-	    					  if(health > 0 && health < 1) {
-	    						  converted = 1;
-	    					  } else {
-	    						  converted = (int) health;
-	    					  }
-	    					  blue.getScore(ChatColor.GREEN + "Wither Health:").setScore(converted);
-	    				  }
-	    				  if(!(yellowWither == null)) {
-	    					  float health = yellowWither.getHealth();
-	    					  int converted;
-	    					  if(health > 0 && health < 1) {
-	    						  converted = 1;
-	    					  } else {
-	    						  converted = (int) health;
-	    					  }
-	    					  blue.getScore(ChatColor.YELLOW + "Wither Health:").setScore(converted);
-	    				  }
-	    				  if(!(blueWither == null)) {
-	    					  float health = blueWither.getHealth();
-	    					  int converted;
-	    					  if(health > 0 && health < 1) {
-	    						  converted = 1;
-	    					  } else {
-	    						  converted = (int) health;
-	    					  }
-	    					  blue.getScore(ChatColor.BLUE + "Wither Health:").setScore(converted);
-	    				  }
-	    				  if(!(redWither == null)) {
-	    					  float health = redWither.getHealth();
-	    					  int converted;
-	    					  if(health > 0 && health < 1) {
-	    						  converted = 1;
-	    					  } else {
-	    						  converted = (int) health;
-	    					  }
-	    					  blue.getScore(ChatColor.RED + "Wither Health:").setScore(converted);
-	    				  }
-	    			  }	else if(worldScoreboards.get(scoreboard).equals("Red")) {
-	    				  Objective red = scoreboard.getObjective(DisplaySlot.SIDEBAR);
-	    				  red.setDisplayName(ChatColor.RED + "Mega Walls " + handler.handleList.get(world).formatStringTime());
-	    				  if(!(greenWither == null)) {
-	    					  float health = greenWither.getHealth();
-	    					  int converted;
-	    					  if(health > 0 && health < 1) {
-	    						  converted = 1;
-	    					  } else {
-	    						  converted = (int) health;
-	    					  }
-	    					  red.getScore(ChatColor.GREEN + "Wither Health:").setScore(converted);
-	    				  }
-	    				  if(!(yellowWither == null)) {
-	    					  float health = yellowWither.getHealth();
-	    					  int converted;
-	    					  if(health > 0 && health < 1) {
-	    						  converted = 1;
-	    					  } else {
-	    						  converted = (int) health;
-	    					  }
-	    					  red.getScore(ChatColor.YELLOW + "Wither Health:").setScore(converted);
-	    				  }
-	    				  if(!(blueWither == null)) {
-	    					  float health = blueWither.getHealth();
-	    					  int converted;
-	    					  if(health > 0 && health < 1) {
-	    						  converted = 1;
-	    					  } else {
-	    						  converted = (int) health;
-	    					  }
-	    					  red.getScore(ChatColor.BLUE + "Wither Health:").setScore(converted);
-	    				  }
-	    				  if(!(redWither == null)) {
-	    					  float health = redWither.getHealth();
-	    					  int converted;
-	    					  if(health > 0 && health < 1) {
-	    						  converted = 1;
-	    					  } else {
-	    						  converted = (int) health;
-	    					  }
-	    					  red.getScore(ChatColor.RED + "Wither Health:").setScore(converted);
-	    				  }
+	    			  }
+	    			  
+	    			  if(!allWithersDead) {
+	    				  if(worldScoreboards.get(scoreboard).equals("Green")){
+		    				  Objective green = scoreboard.getObjective(DisplaySlot.SIDEBAR);
+		    				  green.setDisplayName(ChatColor.GREEN + "Mega Walls " + ChatColor.RED + handler.handleList.get(world).formatStringTime());
+		    				  if(!(greenWither == null)) {
+		    					  float health = greenWither.getHealth();
+		    					  int converted;
+		    					  if(health > 0 && health < 1) {
+		    						  converted = 1;
+		    					  } else {
+		    						  converted = (int) health;
+		    					  }
+		    					  green.getScore(ChatColor.GREEN + "Wither Health:").setScore(converted);
+		    				  }
+		    				  if(!(yellowWither == null)) {
+		    					  float health = yellowWither.getHealth();
+		    					  int converted;
+		    					  if(health > 0 && health < 1) {
+		    						  converted = 1;
+		    					  } else {
+		    						  converted = (int) health;
+		    					  }
+		    					  green.getScore(ChatColor.YELLOW + "Wither Health:").setScore(converted);
+		    				  }
+		    				  if(!(blueWither == null)) {
+		    					  float health = blueWither.getHealth();
+		    					  int converted;
+		    					  if(health > 0 && health < 1) {
+		    						  converted = 1;
+		    					  } else {
+		    						  converted = (int) health;
+		    					  }
+		    					  green.getScore(ChatColor.BLUE + "Wither Health:").setScore(converted);
+		    				  }
+		    				  if(!(redWither == null)) {
+		    					  float health = redWither.getHealth();
+		    					  int converted;
+		    					  if(health > 0 && health < 1) {
+		    						  converted = 1;
+		    					  } else {
+		    						  converted = (int) health;
+		    					  }
+		    					  green.getScore(ChatColor.RED + "Wither Health:").setScore(converted);
+		    				  }
+		    			  } else if(worldScoreboards.get(scoreboard).equals("Yellow")){
+		    				  Objective yellow = scoreboard.getObjective(DisplaySlot.SIDEBAR);
+		    				  yellow.setDisplayName(ChatColor.YELLOW + "Mega Walls " + ChatColor.RED + handler.handleList.get(world).formatStringTime());
+		    				  if(!(greenWither == null)){
+		    					  float health = greenWither.getHealth();
+		    					  int converted;
+		    					  if(health > 0 && health < 1) {
+		    						  converted = 1;
+		    					  } else {
+		    						  converted = (int) health;
+		    					  }
+		    					  yellow.getScore(ChatColor.GREEN + "Wither Health:").setScore(converted);
+		    				  }
+		    				  if(!(yellowWither == null)) {
+		    					  float health = yellowWither.getHealth();
+		    					  int converted;
+		    					  if(health > 0 && health < 1) {
+		    						  converted = 1;
+		    					  } else {
+		    						  converted = (int) health;
+		    					  }
+		    					  yellow.getScore(ChatColor.YELLOW + "Wither Health:").setScore(converted);
+		    				  }
+		    				  if(!(blueWither == null)) {
+		    					  float health = blueWither.getHealth();
+		    					  int converted;
+		    					  if(health > 0 && health < 1) {
+		    						  converted = 1;
+		    					  } else {
+		    						  converted = (int) health;
+		    					  }
+		    					  yellow.getScore(ChatColor.BLUE + "Wither Health:").setScore(converted);
+		    				  }
+		    				  if(!(redWither == null)) {
+		    					  float health = redWither.getHealth();
+		    					  int converted;
+		    					  if(health > 0 && health < 1) {
+		    						  converted = 1;
+		    					  } else {
+		    						  converted = (int) health;
+		    					  }
+		    					  yellow.getScore(ChatColor.RED + "Wither Health:").setScore(converted);
+		    				  }  
+		    			  } else if(worldScoreboards.get(scoreboard).equals("Blue")){
+		    				  Objective blue = scoreboard.getObjective(DisplaySlot.SIDEBAR);
+		    				  blue.setDisplayName(ChatColor.BLUE + "Mega Walls " + ChatColor.RED + handler.handleList.get(world).formatStringTime());
+		    				  if(!(greenWither == null)) {
+		    					  float health = greenWither.getHealth();
+		    					  int converted;
+		    					  if(health > 0 && health < 1) {
+		    						  converted = 1;
+		    					  } else {
+		    						  converted = (int) health;
+		    					  }
+		    					  blue.getScore(ChatColor.GREEN + "Wither Health:").setScore(converted);
+		    				  }
+		    				  if(!(yellowWither == null)) {
+		    					  float health = yellowWither.getHealth();
+		    					  int converted;
+		    					  if(health > 0 && health < 1) {
+		    						  converted = 1;
+		    					  } else {
+		    						  converted = (int) health;
+		    					  }
+		    					  blue.getScore(ChatColor.YELLOW + "Wither Health:").setScore(converted);
+		    				  }
+		    				  if(!(blueWither == null)) {
+		    					  float health = blueWither.getHealth();
+		    					  int converted;
+		    					  if(health > 0 && health < 1) {
+		    						  converted = 1;
+		    					  } else {
+		    						  converted = (int) health;
+		    					  }
+		    					  blue.getScore(ChatColor.BLUE + "Wither Health:").setScore(converted);
+		    				  }
+		    				  if(!(redWither == null)) {
+		    					  float health = redWither.getHealth();
+		    					  int converted;
+		    					  if(health > 0 && health < 1) {
+		    						  converted = 1;
+		    					  } else {
+		    						  converted = (int) health;
+		    					  }
+		    					  blue.getScore(ChatColor.RED + "Wither Health:").setScore(converted);
+		    				  }
+		    			  }	else if(worldScoreboards.get(scoreboard).equals("Red")) {
+		    				  Objective red = scoreboard.getObjective(DisplaySlot.SIDEBAR);
+		    				  red.setDisplayName(ChatColor.RED + "Mega Walls " + handler.handleList.get(world).formatStringTime());
+		    				  if(!(greenWither == null)) {
+		    					  float health = greenWither.getHealth();
+		    					  int converted;
+		    					  if(health > 0 && health < 1) {
+		    						  converted = 1;
+		    					  } else {
+		    						  converted = (int) health;
+		    					  }
+		    					  red.getScore(ChatColor.GREEN + "Wither Health:").setScore(converted);
+		    				  }
+		    				  if(!(yellowWither == null)) {
+		    					  float health = yellowWither.getHealth();
+		    					  int converted;
+		    					  if(health > 0 && health < 1) {
+		    						  converted = 1;
+		    					  } else {
+		    						  converted = (int) health;
+		    					  }
+		    					  red.getScore(ChatColor.YELLOW + "Wither Health:").setScore(converted);
+		    				  }
+		    				  if(!(blueWither == null)) {
+		    					  float health = blueWither.getHealth();
+		    					  int converted;
+		    					  if(health > 0 && health < 1) {
+		    						  converted = 1;
+		    					  } else {
+		    						  converted = (int) health;
+		    					  }
+		    					  red.getScore(ChatColor.BLUE + "Wither Health:").setScore(converted);
+		    				  }
+		    				  if(!(redWither == null)) {
+		    					  float health = redWither.getHealth();
+		    					  int converted;
+		    					  if(health > 0 && health < 1) {
+		    						  converted = 1;
+		    					  } else {
+		    						  converted = (int) health;
+		    					  }
+		    					  red.getScore(ChatColor.RED + "Wither Health:").setScore(converted);
+		    				  }
+		    			  }
+	    			  } else {
+	    				  
 	    			  }
 	    				  
 	    		  }

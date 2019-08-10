@@ -36,6 +36,7 @@ public class EntityCustomWither extends EntityMonster implements IRangedEntity {
         this.fireProof = true;
         this.getNavigation().e(true);
         this.b = 50;
+        this.persistent = true;
         scheduler = new BukkitRunnable() {
         	
         	int seconds = 7;
@@ -101,7 +102,13 @@ public class EntityCustomWither extends EntityMonster implements IRangedEntity {
     protected String aU() {
         return "mob.wither.death";
     }
-
+    
+    @Override
+    public boolean isTypeNotPersistent() {
+    	return false;
+    }
+    
+    @Override
     public void e() {
         this.motY *= 0.6000000238418579D;
         double d0;
@@ -379,8 +386,7 @@ public class EntityCustomWither extends EntityMonster implements IRangedEntity {
         return false;
     }
     
-    @Override
-    public void heal(float f){
+    public void heal(float f) {
     	return;
     }
     

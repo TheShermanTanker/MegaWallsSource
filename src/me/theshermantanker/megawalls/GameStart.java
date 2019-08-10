@@ -28,7 +28,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-public class GameStart implements Listener{
+public class GameStart implements Listener {
 	
 	MegaWallsPlugin plugin = MegaWallsPlugin.plugin;
 	WitherCraft withercraft = WitherCraft.instance;
@@ -208,7 +208,7 @@ public class GameStart implements Listener{
 	                       spawnRedWither(holder.redWitherSpawn, redTeam);
 	                       spawnYellowWither(holder.yellowWitherSpawn, yellowTeam);
 	                       plugin.worlds.put(world, true);
-	                       EnhancedScheduler scheduler = new EnhancedScheduler(600, false);
+	                       EnhancedScheduler scheduler = new EnhancedScheduler(20, false);
 	                       scheduler.startTimer();
 	                       gameHandler.registerGame(world, scheduler);
 	                       List<Team> teams = new ArrayList<Team>();
